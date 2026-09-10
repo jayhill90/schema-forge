@@ -1,0 +1,12 @@
+{
+  "version": "2026-09",
+  "generated": "2026-09-09T20:46:00.147Z",
+  "counts": {
+    "types": 933,
+    "props": 1522,
+    "enums": 81,
+    "enumMembers": 533,
+    "datatypes": 17,
+    "superseded": 81
+  }
+}

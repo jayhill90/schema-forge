@@ -1,0 +1,36 @@
+{
+  "name": "schema-forge",
+  "version": "0.1.0",
+  "description": "Drag-and-drop schema.org template builder for WordPress with Yoast SEO integration.",
+  "private": true,
+  "license": "GPL-2.0-or-later",
+  "scripts": {
+    "build": "wp-scripts build",
+    "start": "wp-scripts start",
+    "test:unit": "wp-scripts test-unit-js",
+    "lint:js": "wp-scripts lint-js",
+    "vocab": "node scripts/build-vocab.mjs",
+    "playground": "wp-playground-cli server --port=9400 --php=8.3 --wp=latest --blueprint=playground/blueprint.json --mount=./:/wordpress/wp-content/plugins/schema-forge --login",
+    "playground:test": "wp-playground-cli run-blueprint --blueprint=playground/blueprint.test.json --mount=./:/wordpress/wp-content/plugins/schema-forge",
+    "playground:test:standalone": "wp-playground-cli run-blueprint --blueprint=playground/blueprint.test-standalone.json --mount=./:/wordpress/wp-content/plugins/schema-forge",
+    "verify": "npm run build && npm run test:unit && npm run lint:php && npm run playground:test && npm run playground:test:standalone",
+    "lint:php": "wp-playground-cli php --wordpress-install-mode=do-not-attempt-installing --mount=./:/plugin -- /plugin/playground/lint.php",
+    "i18n": "wp-playground-cli run-blueprint --blueprint=playground/blueprint.i18n.json --mount=./:/wordpress/wp-content/plugins/schema-forge"
+  },
+  "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2"
+  },
+  "devDependencies": {
+    "@wordpress/api-fetch": "*",
+    "@wordpress/components": "^40.0.0",
+    "@wordpress/data": "*",
+    "@wordpress/editor": "^14.0.0",
+    "@wordpress/element": "*",
+    "@wordpress/i18n": "*",
+    "@wordpress/plugins": "*",
+    "@wordpress/scripts": "^34.2.0",
+    "@wp-playground/cli": "^3.1.53"
+  }
+}

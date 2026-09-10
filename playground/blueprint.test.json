@@ -1,0 +1,60 @@
+{
+  "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+  "preferredVersions": {
+    "php": "8.3",
+    "wp": "latest"
+  },
+  "features": {
+    "networking": true
+  },
+  "steps": [
+    {
+      "step": "setSiteOptions",
+      "options": {
+        "permalink_structure": "/%postname%/",
+        "blogname": "Forge Demo Store"
+      }
+    },
+    {
+      "step": "mkdir",
+      "path": "/wordpress/wp-content/mu-plugins"
+    },
+    {
+      "step": "cp",
+      "fromPath": "/wordpress/wp-content/plugins/schema-forge/playground/mu-helper.php",
+      "toPath": "/wordpress/wp-content/mu-plugins/sf-playground-helper.php"
+    },
+    {
+      "step": "installPlugin",
+      "pluginData": {
+        "resource": "wordpress.org/plugins",
+        "slug": "wordpress-seo"
+      },
+      "options": {
+        "activate": true
+      }
+    },
+    {
+      "step": "installPlugin",
+      "pluginData": {
+        "resource": "wordpress.org/plugins",
+        "slug": "secure-custom-fields"
+      },
+      "options": {
+        "activate": true
+      }
+    },
+    {
+      "step": "activatePlugin",
+      "pluginPath": "/wordpress/wp-content/plugins/schema-forge/schema-forge.php"
+    },
+    {
+      "step": "runPHP",
+      "code": "<?php require '/wordpress/wp-load.php'; require '/wordpress/wp-content/plugins/schema-forge/playground/seed.php';"
+    },
+    {
+      "step": "runPHP",
+      "code": "<?php require '/wordpress/wp-load.php'; require '/wordpress/wp-content/plugins/schema-forge/playground/seed.php'; require '/wordpress/wp-content/plugins/schema-forge/playground/smoke-test.php';"
+    }
+  ]
+}

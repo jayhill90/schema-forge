@@ -1,0 +1,6 @@
+{
+  "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+  "steps": [
+    { "step": "wp-cli", "command": "wp i18n make-pot /wordpress/wp-content/plugins/schema-forge /wordpress/wp-content/plugins/schema-forge/languages/schema-forge.pot --slug=schema-forge --domain=schema-forge --exclude=node_modules,build,playground,tests,scripts,assets --include=schema-forge.php,uninstall.php,includes,src" }
+  ]
+}
