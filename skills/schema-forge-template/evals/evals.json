@@ -1,0 +1,23 @@
+{
+  "skill_name": "schema-forge-template",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "I've saved one of our WooCommerce product pages as HTML at evals/fixtures/product-page.html. Generate a Schema Forge template JSON I can import so all our products get proper Product rich results. Save it as ridgeline-product-template.json.",
+      "expected_output": "A valid Schema Forge import JSON with a Product root (isMainEntity, ItemPage override, Article suppressed), Offer with numeric price from WooCommerce meta, brand, sku, aggregateRating, image via featured image, tokens rather than literal values, plus a short summary of meta keys to confirm.",
+      "files": ["evals/fixtures/product-page.html"]
+    },
+    {
+      "id": 1,
+      "prompt": "Here's our help page evals/fixtures/support-faq.html. What schema should it have? Give me a Schema Forge import file for it, saved as returns-faq-template.json.",
+      "expected_output": "A valid import JSON containing an FAQPage (repeat over an ACF repeater or literal Question nodes) and ideally a HowTo for the numbered steps, with the FAQPage webPageType override; explanation of the repeater fields the site needs.",
+      "files": ["evals/fixtures/support-faq.html"]
+    },
+    {
+      "id": 2,
+      "prompt": "Look at https://developer.wordpress.org/rest-api/reference/posts/ and build a Schema Forge template for our own API reference pages (post type api_reference), saved as api-reference-template.json.",
+      "expected_output": "A valid import JSON with APIReference root (headline token, programmingModel REST, targetPlatform, proficiencyLevel, author ref), a WebAPI node placed in graph and referenced via about, suppressArticle true; summary of assumptions.",
+      "files": []
+    }
+  ]
+}

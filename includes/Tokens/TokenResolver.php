@@ -194,6 +194,28 @@ final class TokenResolver {
 				return self::is_empty( $value ) ? ( $arg ?? '' ) : $value;
 			case 'key':
 				return is_array( $value ) && $arg !== null ? ( $value[ $arg ] ?? null ) : null;
+			case 'nonzero':
+				// Treat 0 / "0" / "0.00" as empty (WooCommerce stores 0 for unrated products).
+				return is_numeric( $value ) && (float) $value == 0.0 ? null : $value; // phpcs:ignore Universal.Operators.StrictComparisons
+			case 'map':
+				// map:"instock=https://schema.org/InStock,outofstock=https://schema.org/OutOfStock"
+				if ( $arg === null || ! is_scalar( $value ) ) {
+					return $value;
+				}
+				$needle = strtolower( trim( (string) $value ) );
+				foreach ( explode( ',', $arg ) as $pair ) {
+					if ( ! str_contains( $pair, '=' ) ) {
+						continue;
+					}
+					[ $from, $to ] = explode( '=', $pair, 2 );
+					if ( strtolower( trim( $from ) ) === $needle ) {
+						return trim( $to );
+					}
+					if ( trim( $from ) === '*' ) {
+						$fallback = trim( $to );
+					}
+				}
+				return $fallback ?? null;
 			case 'raw':
 			default:
 				/**

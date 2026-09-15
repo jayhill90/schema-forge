@@ -119,6 +119,15 @@ if ( $mode === 'yoast' ) {
 	sf_assert( ! str_contains( $html, '</script' ), 'standalone JSON is script-safe (HEX_TAG)' );
 }
 
+// ---- Token filters: nonzero + map ----
+$tr = \SchemaForge\Tokens\TokenResolver::instance();
+sf_assert( $tr::apply_filter( '0', 'nonzero', null ) === null && $tr::apply_filter( '4.7', 'nonzero', null ) === '4.7', 'nonzero filter drops zero ratings' );
+sf_assert( $tr::apply_filter( 'instock', 'map', 'instock=https://schema.org/InStock,outofstock=https://schema.org/OutOfStock' ) === 'https://schema.org/InStock', 'map filter translates values' );
+sf_assert( $tr::apply_filter( 'weird', 'map', 'instock=A,*=B' ) === 'B' && $tr::apply_filter( 'weird', 'map', 'instock=A' ) === null, 'map filter fallback and miss' );
+update_option( 'woocommerce_currency', 'EUR' );
+sf_assert( $tr->resolve_text( '{{site.option.woocommerce_currency}}', RenderContext::for_post( $trail ) )->value === 'EUR', 'site.option token reads allow-listed options' );
+sf_assert( $tr->resolve_text( '{{site.option.admin_email}}', RenderContext::for_post( $trail ) )->value === null, 'site.option refuses non-allow-listed options' );
+
 // ---- Product without SKU/price: Offer dropped (dropNode), Product kept ----
 $nosku_graph = sf_graph_for_post( $seed['product_nosku'] );
 sf_assert( sf_find_node( $nosku_graph, 'Product' ) === null, 'disableInherited removes the post-type template' );

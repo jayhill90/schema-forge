@@ -119,7 +119,7 @@ export default function TokenPicker( { context, onInsert, label, size = 'small',
 							) ) }
 						</div>
 						<p className="schema-forge-token-help">
-							{ __( 'Filters: {{post.title|upper}}, {{terms.category|join:", "}}, {{post.date|date:Y-m-d}}, {{meta.key|default:"n/a"}}', 'schema-forge' ) }
+							{ __( 'Filters: {{post.title|upper}}, {{terms.category|join:", "}}, {{post.date|date:Y-m-d}}, {{meta.key|default:"n/a"}}, {{meta.rating|nonzero}}, {{meta.status|map:"instock=https://schema.org/InStock"}}', 'schema-forge' ) }
 						</p>
 					</div>
 				</Popover>

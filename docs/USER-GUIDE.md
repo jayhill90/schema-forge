@@ -83,7 +83,7 @@ Common tokens:
 | `{{terms.category}}`, `{{terms.product_cat.first.name}}` | Taxonomy terms |
 | `{{item.field}}` | The current row inside a *Repeat* value |
 
-Tokens can be mixed with text (`{{post.title}} – {{site.name}}`) and take filters: `{{terms.category|join:", "}}`, `{{post.date|date:Y-m-d}}`, `{{post.title|upper}}`, `{{meta.stock|default:"0"}}`.
+Tokens can be mixed with text (`{{post.title}} – {{site.name}}`) and take filters: `{{terms.category|join:", "}}`, `{{post.date|date:Y-m-d}}`, `{{post.title|upper}}`, `{{meta.stock|default:"0"}}`, `{{meta._wc_average_rating|nonzero}}` (treats 0 as empty), `{{meta._stock_status|map:"instock=https://schema.org/InStock,outofstock=https://schema.org/OutOfStock"}}`, `{{site.option.woocommerce_currency}}`.
 
 After you run a preview (step 6), each token shows its resolved value underneath the field, so you can see at a glance which fields are empty on that page.
 

@@ -1,0 +1,40 @@
+{
+  "schemaForge": 1,
+  "name": "Product (main entity)",
+  "description": "Product schema for every product. Uses WooCommerce meta keys (_price, _sku, _stock_status, _wc_average_rating, _wc_review_count).",
+  "tree": {
+    "version": 1,
+    "root": {
+      "id": "n_product",
+      "type": "Product",
+      "options": { "isMainEntity": true, "idOverride": "", "placement": "graph", "extraTypes": [] },
+      "properties": [
+        { "id": "p_name", "name": "name", "dataType": "auto", "onEmpty": "dropNode", "fallback": "", "values": [ { "id": "v_name", "kind": "text", "value": "{{post.title}}" } ] },
+        { "id": "p_desc", "name": "description", "dataType": "auto", "onEmpty": "drop", "fallback": "", "values": [ { "id": "v_desc", "kind": "text", "value": "{{post.excerpt}}" } ] },
+        { "id": "p_image", "name": "image", "dataType": "auto", "onEmpty": "drop", "fallback": "", "values": [ { "id": "v_image", "kind": "text", "value": "{{post.featured_image_object}}" } ] },
+        { "id": "p_url", "name": "url", "dataType": "url", "onEmpty": "drop", "fallback": "", "values": [ { "id": "v_url", "kind": "text", "value": "{{post.permalink}}" } ] },
+        { "id": "p_sku", "name": "sku", "dataType": "auto", "onEmpty": "drop", "fallback": "", "values": [ { "id": "v_sku", "kind": "text", "value": "{{meta._sku}}" } ] },
+        { "id": "p_category", "name": "category", "dataType": "auto", "onEmpty": "drop", "fallback": "", "values": [ { "id": "v_category", "kind": "text", "value": "{{terms.product_cat.first.name}}" } ] },
+        { "id": "p_brand", "name": "brand", "dataType": "auto", "onEmpty": "drop", "fallback": "", "values": [ { "id": "v_brand", "kind": "node", "node": {
+          "id": "n_brand", "type": "Brand", "options": { "isMainEntity": false, "idOverride": "", "placement": "inline", "extraTypes": [] },
+          "properties": [ { "id": "p_brand_name", "name": "name", "dataType": "auto", "onEmpty": "fallback", "fallback": "{{site.name}}", "values": [ { "id": "v_brand_name", "kind": "text", "value": "{{meta.brand}}" } ] } ] } } ] },
+        { "id": "p_offers", "name": "offers", "dataType": "auto", "onEmpty": "drop", "fallback": "", "values": [ { "id": "v_offer", "kind": "node", "node": {
+          "id": "n_offer", "type": "Offer", "options": { "isMainEntity": false, "idOverride": "", "placement": "inline", "extraTypes": [] },
+          "properties": [
+            { "id": "p_price", "name": "price", "dataType": "number", "onEmpty": "dropNode", "fallback": "", "values": [ { "id": "v_price", "kind": "text", "value": "{{meta._price}}" } ] },
+            { "id": "p_currency", "name": "priceCurrency", "dataType": "auto", "onEmpty": "fallback", "fallback": "USD", "values": [ { "id": "v_currency", "kind": "text", "value": "{{meta.currency}}" } ] },
+            { "id": "p_avail", "name": "availability", "dataType": "auto", "onEmpty": "drop", "fallback": "", "values": [ { "id": "v_avail", "kind": "text", "value": "https://schema.org/InStock" } ] },
+            { "id": "p_offer_url", "name": "url", "dataType": "url", "onEmpty": "drop", "fallback": "", "values": [ { "id": "v_offer_url", "kind": "text", "value": "{{post.permalink}}" } ] },
+            { "id": "p_seller", "name": "seller", "dataType": "auto", "onEmpty": "drop", "fallback": "", "values": [ { "id": "v_seller", "kind": "ref", "target": "yoast:organization" } ] }
+          ] } } ] },
+        { "id": "p_rating", "name": "aggregateRating", "dataType": "auto", "onEmpty": "drop", "fallback": "", "values": [ { "id": "v_rating", "kind": "node", "node": {
+          "id": "n_rating", "type": "AggregateRating", "options": { "isMainEntity": false, "idOverride": "", "placement": "inline", "extraTypes": [] },
+          "properties": [
+            { "id": "p_rating_value", "name": "ratingValue", "dataType": "number", "onEmpty": "dropNode", "fallback": "", "values": [ { "id": "v_rating_value", "kind": "text", "value": "{{meta._wc_average_rating}}" } ] },
+            { "id": "p_review_count", "name": "reviewCount", "dataType": "integer", "onEmpty": "dropNode", "fallback": "", "values": [ { "id": "v_review_count", "kind": "text", "value": "{{meta._wc_review_count}}" } ] }
+          ] } } ] }
+      ]
+    }
+  },
+  "settings": { "yoast": { "suppressArticle": true, "webPageType": "ItemPage" }, "standalone": { "includeCoreNodes": true } }
+}

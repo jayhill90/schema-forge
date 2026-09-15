@@ -7,12 +7,16 @@ SEO managers build reusable structured-data templates visually (Product, LocalBu
 ## Features
 
 - **Visual builder** – searchable palette of every schema.org type and property (compiled from the official release, including pending and deprecated terms, which are flagged, plus the `query-input` extension used by sitelinks search boxes), nested nodes, references, repeat-over-list values, live JSON-LD preview against a real post, validation panel, undo/redo, keyboard-accessible drag and drop with screen-reader announcements.
-- **Dynamic tokens** – `{{post.title}}`, `{{post.excerpt}}`, `{{post.featured_image_object}}`, `{{site.name}}`, `{{meta.sku}}`, `{{acf.field}}`, `{{terms.category}}`, `{{item.field}}` (inside repeats), with filters like `|join:", "`, `|date:Y-m-d`, `|upper`, `|default:"n/a"`.
+- **Dynamic tokens** – `{{post.title}}`, `{{post.excerpt}}`, `{{post.featured_image_object}}`, `{{site.name}}`, `{{meta.sku}}`, `{{acf.field}}`, `{{terms.category}}`, `{{item.field}}` (inside repeats), with filters like `|join:", "`, `|date:Y-m-d`, `|upper`, `|default:"n/a"`, `|nonzero`, `|map:"instock=https://schema.org/InStock"`.
 - **Empty handling** – per property: omit, use a fallback, or drop the whole node (required).
 - **Assignment rules** – post type defaults → taxonomy → term add/exclude → per-post overrides (block editor sidebar or classic meta box), plus front page, blog, search, 404, author, date, post-type and term archives.
 - **Yoast SEO integration** – one graph piece per template via `wpseo_schema_graph_pieces`; references to `#organization`, person, `#primaryimage`, `#breadcrumb`, `#article`; set the page's `mainEntity`; override the WebPage `@type` (e.g. `ItemPage`, `FAQPage`); suppress Yoast's Article node.
 - **Standalone mode** – without Yoast, outputs WebSite/WebPage/Organization core nodes plus your templates in `wp_head`.
 - **Import/export** templates as JSON.
+
+## Claude skill: generate a template from a page
+
+`skills/schema-forge-template/` is a [Claude Code skill](https://docs.claude.com/en/docs/claude-code/skills) that inspects a page (URL or saved HTML), decides the schema.org type it should carry, and writes an import-ready template JSON with dynamic tokens. Install it by copying or symlinking the folder into `~/.claude/skills/`, then ask Claude something like *"build a Schema Forge template for https://example.com/product/x"*. It bundles `scripts/inspect-page.mjs` (page digest) and `scripts/validate.mjs` (checks a JSON file against the plugin's sanitizer rules and the schema.org vocabulary) — both are plain Node scripts you can also run by hand.
 
 ## Requirements
 

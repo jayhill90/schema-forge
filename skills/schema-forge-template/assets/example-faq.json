@@ -1,0 +1,24 @@
+{
+  "schemaForge": 1,
+  "name": "FAQ page",
+  "description": "FAQPage built from an ACF repeater named `faqs` with sub-fields `question` and `answer`. Assign to the pages that carry the repeater.",
+  "tree": {
+    "version": 1,
+    "root": {
+      "id": "n_faq",
+      "type": "FAQPage",
+      "options": { "isMainEntity": false, "idOverride": "", "placement": "graph", "extraTypes": [] },
+      "properties": [
+        { "id": "p_main", "name": "mainEntity", "dataType": "auto", "onEmpty": "dropNode", "fallback": "", "values": [ { "id": "v_repeat", "kind": "repeat", "source": "{{acf.faqs}}", "node": {
+          "id": "n_question", "type": "Question", "options": { "isMainEntity": false, "idOverride": "", "placement": "inline", "extraTypes": [] },
+          "properties": [
+            { "id": "p_q", "name": "name", "dataType": "auto", "onEmpty": "dropNode", "fallback": "", "values": [ { "id": "v_q", "kind": "text", "value": "{{item.question}}" } ] },
+            { "id": "p_a", "name": "acceptedAnswer", "dataType": "auto", "onEmpty": "dropNode", "fallback": "", "values": [ { "id": "v_a", "kind": "node", "node": {
+              "id": "n_answer", "type": "Answer", "options": { "isMainEntity": false, "idOverride": "", "placement": "inline", "extraTypes": [] },
+              "properties": [ { "id": "p_text", "name": "text", "dataType": "auto", "onEmpty": "dropNode", "fallback": "", "values": [ { "id": "v_text", "kind": "text", "value": "{{item.answer|strip}}" } ] } ] } } ] }
+          ] } } ] }
+      ]
+    }
+  },
+  "settings": { "yoast": { "suppressArticle": false, "webPageType": "FAQPage" }, "standalone": { "includeCoreNodes": true } }
+}

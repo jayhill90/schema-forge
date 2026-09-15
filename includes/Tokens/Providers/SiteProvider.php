@@ -55,7 +55,8 @@ final class SiteProvider implements ProviderInterface {
 			 *
 			 * @param string[] $allowed
 			 */
-			$allowed = (array) apply_filters( 'schema_forge_site_option_tokens', [] );
+			$defaults = [ 'woocommerce_currency', 'woocommerce_store_address', 'woocommerce_store_city', 'woocommerce_store_postcode', 'woocommerce_default_country', 'date_format', 'timezone_string' ];
+			$allowed  = (array) apply_filters( 'schema_forge_site_option_tokens', $defaults );
 			if ( in_array( $key, $allowed, true ) ) {
 				$value = get_option( $key );
 				return is_scalar( $value ) ? $value : null;
@@ -80,6 +81,7 @@ final class SiteProvider implements ProviderInterface {
 			$t( 'language', __( 'Language', 'schema-forge' ) ),
 			$t( 'canonical', __( 'Current page URL', 'schema-forge' ), 'url' ),
 			$t( 'search_url', __( 'Search URL template', 'schema-forge' ), 'url' ),
+			$t( 'option.woocommerce_currency', __( 'WooCommerce currency', 'schema-forge' ) ),
 		];
 	}
 }
