@@ -3,8 +3,8 @@ let counter = 0;
 /**
  * Short unique id with a prefix (n_, p_, v_). Matches the PHP sanitizer's ID_PATTERN.
  *
- * @param {string} prefix
- * @return {string}
+ * @param {string} prefix `n`, `p` or `v`.
+ * @return {string} An id such as `n_k3x9a1`.
  */
 export function makeId( prefix ) {
 	counter += 1;

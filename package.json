@@ -13,7 +13,7 @@
     "playground": "wp-playground-cli server --port=9400 --php=8.3 --wp=latest --blueprint=playground/blueprint.json --mount=./:/wordpress/wp-content/plugins/schema-forge --login",
     "playground:test": "wp-playground-cli run-blueprint --blueprint=playground/blueprint.test.json --mount=./:/wordpress/wp-content/plugins/schema-forge",
     "playground:test:standalone": "wp-playground-cli run-blueprint --blueprint=playground/blueprint.test-standalone.json --mount=./:/wordpress/wp-content/plugins/schema-forge",
-    "verify": "npm run build && npm run test:unit && npm run lint:php && npm run playground:test && npm run playground:test:standalone",
+    "verify": "npm run build && npm run lint:js && npm run test:unit && npm run lint:php && npm run playground:test && npm run playground:test:standalone",
     "lint:php": "wp-playground-cli php --wordpress-install-mode=do-not-attempt-installing --mount=./:/plugin -- /plugin/playground/lint.php",
     "i18n": "wp-playground-cli run-blueprint --blueprint=playground/blueprint.i18n.json --mount=./:/wordpress/wp-content/plugins/schema-forge"
   },

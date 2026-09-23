@@ -1,5 +1,11 @@
 import { makeId } from './ids';
-import { DEFAULT_NODE_OPTIONS, DEFAULT_PROPERTY, collectSubtree, emptyState, normalize } from './normalize';
+import {
+	DEFAULT_NODE_OPTIONS,
+	DEFAULT_PROPERTY,
+	collectSubtree,
+	emptyState,
+	normalize,
+} from './normalize';
 
 export const ACTIONS = {
 	LOAD: 'LOAD',
@@ -20,23 +26,78 @@ export const ACTIONS = {
 
 export const actions = {
 	load: ( tree ) => ( { type: ACTIONS.LOAD, tree } ),
-	setRootType: ( typeName, id ) => ( { type: ACTIONS.SET_ROOT_TYPE, typeName, id } ),
-	setNodeType: ( nodeId, typeName ) => ( { type: ACTIONS.SET_NODE_TYPE, nodeId, typeName } ),
-	setNodeOption: ( nodeId, key, value ) => ( { type: ACTIONS.SET_NODE_OPTION, nodeId, key, value } ),
-	addProperty: ( nodeId, name, extra = {} ) => ( { type: ACTIONS.ADD_PROPERTY, nodeId, name, ...extra } ),
-	updateProperty: ( propertyId, patch ) => ( { type: ACTIONS.UPDATE_PROPERTY, propertyId, patch } ),
-	removeProperty: ( propertyId ) => ( { type: ACTIONS.REMOVE_PROPERTY, propertyId } ),
-	moveProperty: ( nodeId, from, to ) => ( { type: ACTIONS.MOVE_PROPERTY, nodeId, from, to } ),
-	addValue: ( propertyId, kind, extra = {} ) => ( { type: ACTIONS.ADD_VALUE, propertyId, kind, ...extra } ),
-	updateValue: ( valueId, patch ) => ( { type: ACTIONS.UPDATE_VALUE, valueId, patch } ),
+	setRootType: ( typeName, id ) => ( {
+		type: ACTIONS.SET_ROOT_TYPE,
+		typeName,
+		id,
+	} ),
+	setNodeType: ( nodeId, typeName ) => ( {
+		type: ACTIONS.SET_NODE_TYPE,
+		nodeId,
+		typeName,
+	} ),
+	setNodeOption: ( nodeId, key, value ) => ( {
+		type: ACTIONS.SET_NODE_OPTION,
+		nodeId,
+		key,
+		value,
+	} ),
+	addProperty: ( nodeId, name, extra = {} ) => ( {
+		type: ACTIONS.ADD_PROPERTY,
+		nodeId,
+		name,
+		...extra,
+	} ),
+	updateProperty: ( propertyId, patch ) => ( {
+		type: ACTIONS.UPDATE_PROPERTY,
+		propertyId,
+		patch,
+	} ),
+	removeProperty: ( propertyId ) => ( {
+		type: ACTIONS.REMOVE_PROPERTY,
+		propertyId,
+	} ),
+	moveProperty: ( nodeId, from, to ) => ( {
+		type: ACTIONS.MOVE_PROPERTY,
+		nodeId,
+		from,
+		to,
+	} ),
+	addValue: ( propertyId, kind, extra = {} ) => ( {
+		type: ACTIONS.ADD_VALUE,
+		propertyId,
+		kind,
+		...extra,
+	} ),
+	updateValue: ( valueId, patch ) => ( {
+		type: ACTIONS.UPDATE_VALUE,
+		valueId,
+		patch,
+	} ),
 	removeValue: ( valueId ) => ( { type: ACTIONS.REMOVE_VALUE, valueId } ),
-	moveValue: ( propertyId, from, to ) => ( { type: ACTIONS.MOVE_VALUE, propertyId, from, to } ),
-	nestNode: ( valueId, typeName, nodeId ) => ( { type: ACTIONS.NEST_NODE, valueId, typeName, nodeId } ),
+	moveValue: ( propertyId, from, to ) => ( {
+		type: ACTIONS.MOVE_VALUE,
+		propertyId,
+		from,
+		to,
+	} ),
+	nestNode: ( valueId, typeName, nodeId ) => ( {
+		type: ACTIONS.NEST_NODE,
+		valueId,
+		typeName,
+		nodeId,
+	} ),
 	clearNode: ( valueId ) => ( { type: ACTIONS.CLEAR_NODE, valueId } ),
 };
 
 function move( list, from, to ) {
-	if ( from === to || from < 0 || from >= list.length || to < 0 || to >= list.length ) {
+	if (
+		from === to ||
+		from < 0 ||
+		from >= list.length ||
+		to < 0 ||
+		to >= list.length
+	) {
 		return list;
 	}
 	const next = [ ...list ];
@@ -54,7 +115,11 @@ function createNode( state, typeName, parentValueId, id, isRoot ) {
 			[ nodeId ]: {
 				id: nodeId,
 				type: typeName,
-				options: { ...DEFAULT_NODE_OPTIONS, placement: isRoot ? 'graph' : 'inline', extraTypes: [] },
+				options: {
+					...DEFAULT_NODE_OPTIONS,
+					placement: isRoot ? 'graph' : 'inline',
+					extraTypes: [],
+				},
 				propertyIds: [],
 				parentValueId,
 			},
@@ -70,7 +135,12 @@ function deleteSubtree( state, nodeId ) {
 	nodes.forEach( ( id ) => delete nextNodes[ id ] );
 	properties.forEach( ( id ) => delete nextProps[ id ] );
 	values.forEach( ( id ) => delete nextValues[ id ] );
-	return { ...state, nodes: nextNodes, properties: nextProps, values: nextValues };
+	return {
+		...state,
+		nodes: nextNodes,
+		properties: nextProps,
+		values: nextValues,
+	};
 }
 
 function createValue( state, propertyId, kind, extra ) {
@@ -100,13 +170,20 @@ function createValue( state, propertyId, kind, extra ) {
 		values: { ...next.values, [ valueId ]: entry },
 		properties: {
 			...next.properties,
-			[ propertyId ]: { ...property, valueIds: [ ...property.valueIds, valueId ] },
+			[ propertyId ]: {
+				...property,
+				valueIds: [ ...property.valueIds, valueId ],
+			},
 		},
 	};
 }
 
 /**
  * Pure reducer over the normalized template tree.
+ *
+ * @param {Object} [state] Normalized tables; defaults to an empty tree.
+ * @param {Object} action  One of the `actions` creators' results.
+ * @return {Object} The next state, or the same object when nothing changed.
  */
 export function treeReducer( state = emptyState(), action ) {
 	switch ( action.type ) {
@@ -117,11 +194,25 @@ export function treeReducer( state = emptyState(), action ) {
 			if ( state.rootId && state.nodes[ state.rootId ] ) {
 				return {
 					...state,
-					nodes: { ...state.nodes, [ state.rootId ]: { ...state.nodes[ state.rootId ], type: action.typeName } },
+					nodes: {
+						...state.nodes,
+						[ state.rootId ]: {
+							...state.nodes[ state.rootId ],
+							type: action.typeName,
+						},
+					},
 				};
 			}
-			const next = createNode( state, action.typeName, null, action.id, true );
-			const rootId = action.id || Object.keys( next.nodes ).find( ( id ) => ! state.nodes[ id ] );
+			const next = createNode(
+				state,
+				action.typeName,
+				null,
+				action.id,
+				true
+			);
+			const rootId =
+				action.id ||
+				Object.keys( next.nodes ).find( ( id ) => ! state.nodes[ id ] );
 			return { ...next, rootId };
 		}
 
@@ -130,7 +221,13 @@ export function treeReducer( state = emptyState(), action ) {
 			if ( ! node ) {
 				return state;
 			}
-			return { ...state, nodes: { ...state.nodes, [ action.nodeId ]: { ...node, type: action.typeName } } };
+			return {
+				...state,
+				nodes: {
+					...state.nodes,
+					[ action.nodeId ]: { ...node, type: action.typeName },
+				},
+			};
 		}
 
 		case ACTIONS.SET_NODE_OPTION: {
@@ -142,7 +239,13 @@ export function treeReducer( state = emptyState(), action ) {
 			if ( action.nodeId === state.rootId ) {
 				options.placement = 'graph';
 			}
-			return { ...state, nodes: { ...state.nodes, [ action.nodeId ]: { ...node, options } } };
+			return {
+				...state,
+				nodes: {
+					...state.nodes,
+					[ action.nodeId ]: { ...node, options },
+				},
+			};
 		}
 
 		case ACTIONS.ADD_PROPERTY: {
@@ -166,12 +269,26 @@ export function treeReducer( state = emptyState(), action ) {
 					},
 				},
 			};
-			const index = typeof action.index === 'number' ? action.index : node.propertyIds.length;
+			const index =
+				typeof action.index === 'number'
+					? action.index
+					: node.propertyIds.length;
 			const propertyIds = [ ...node.propertyIds ];
 			propertyIds.splice( index, 0, propertyId );
-			next = { ...next, nodes: { ...next.nodes, [ action.nodeId ]: { ...node, propertyIds } } };
+			next = {
+				...next,
+				nodes: {
+					...next.nodes,
+					[ action.nodeId ]: { ...node, propertyIds },
+				},
+			};
 			if ( action.initialValue ) {
-				next = createValue( next, propertyId, action.initialValue.kind || 'text', action.initialValue );
+				next = createValue(
+					next,
+					propertyId,
+					action.initialValue.kind || 'text',
+					action.initialValue
+				);
 			}
 			return next;
 		}
@@ -181,7 +298,19 @@ export function treeReducer( state = emptyState(), action ) {
 			if ( ! property ) {
 				return state;
 			}
-			return { ...state, properties: { ...state.properties, [ action.propertyId ]: { ...property, ...action.patch, id: property.id, nodeId: property.nodeId, valueIds: property.valueIds } } };
+			return {
+				...state,
+				properties: {
+					...state.properties,
+					[ action.propertyId ]: {
+						...property,
+						...action.patch,
+						id: property.id,
+						nodeId: property.nodeId,
+						valueIds: property.valueIds,
+					},
+				},
+			};
 		}
 
 		case ACTIONS.REMOVE_PROPERTY: {
@@ -202,7 +331,15 @@ export function treeReducer( state = emptyState(), action ) {
 			delete properties[ action.propertyId ];
 			const node = next.nodes[ property.nodeId ];
 			const nodes = node
-				? { ...next.nodes, [ property.nodeId ]: { ...node, propertyIds: node.propertyIds.filter( ( id ) => id !== action.propertyId ) } }
+				? {
+						...next.nodes,
+						[ property.nodeId ]: {
+							...node,
+							propertyIds: node.propertyIds.filter(
+								( id ) => id !== action.propertyId
+							),
+						},
+					}
 				: next.nodes;
 			return { ...next, values, properties, nodes };
 		}
@@ -212,18 +349,33 @@ export function treeReducer( state = emptyState(), action ) {
 			if ( ! node ) {
 				return state;
 			}
-			const propertyIds = move( node.propertyIds, action.from, action.to );
+			const propertyIds = move(
+				node.propertyIds,
+				action.from,
+				action.to
+			);
 			if ( propertyIds === node.propertyIds ) {
 				return state;
 			}
-			return { ...state, nodes: { ...state.nodes, [ action.nodeId ]: { ...node, propertyIds } } };
+			return {
+				...state,
+				nodes: {
+					...state.nodes,
+					[ action.nodeId ]: { ...node, propertyIds },
+				},
+			};
 		}
 
 		case ACTIONS.ADD_VALUE: {
 			if ( ! state.properties[ action.propertyId ] ) {
 				return state;
 			}
-			return createValue( state, action.propertyId, action.kind || 'text', action );
+			return createValue(
+				state,
+				action.propertyId,
+				action.kind || 'text',
+				action
+			);
 		}
 
 		case ACTIONS.UPDATE_VALUE: {
@@ -231,7 +383,19 @@ export function treeReducer( state = emptyState(), action ) {
 			if ( ! value ) {
 				return state;
 			}
-			return { ...state, values: { ...state.values, [ action.valueId ]: { ...value, ...action.patch, id: value.id, kind: value.kind, propertyId: value.propertyId } } };
+			return {
+				...state,
+				values: {
+					...state.values,
+					[ action.valueId ]: {
+						...value,
+						...action.patch,
+						id: value.id,
+						kind: value.kind,
+						propertyId: value.propertyId,
+					},
+				},
+			};
 		}
 
 		case ACTIONS.REMOVE_VALUE: {
@@ -239,12 +403,22 @@ export function treeReducer( state = emptyState(), action ) {
 			if ( ! value ) {
 				return state;
 			}
-			let next = value.nodeId ? deleteSubtree( state, value.nodeId ) : state;
+			const next = value.nodeId
+				? deleteSubtree( state, value.nodeId )
+				: state;
 			const values = { ...next.values };
 			delete values[ action.valueId ];
 			const property = next.properties[ value.propertyId ];
 			const properties = property
-				? { ...next.properties, [ value.propertyId ]: { ...property, valueIds: property.valueIds.filter( ( id ) => id !== action.valueId ) } }
+				? {
+						...next.properties,
+						[ value.propertyId ]: {
+							...property,
+							valueIds: property.valueIds.filter(
+								( id ) => id !== action.valueId
+							),
+						},
+					}
 				: next.properties;
 			return { ...next, values, properties };
 		}
@@ -255,18 +429,43 @@ export function treeReducer( state = emptyState(), action ) {
 				return state;
 			}
 			const valueIds = move( property.valueIds, action.from, action.to );
-			return valueIds === property.valueIds ? state : { ...state, properties: { ...state.properties, [ action.propertyId ]: { ...property, valueIds } } };
+			return valueIds === property.valueIds
+				? state
+				: {
+						...state,
+						properties: {
+							...state.properties,
+							[ action.propertyId ]: { ...property, valueIds },
+						},
+					};
 		}
 
 		case ACTIONS.NEST_NODE: {
 			const value = state.values[ action.valueId ];
-			if ( ! value || ( value.kind !== 'node' && value.kind !== 'repeat' ) ) {
+			if (
+				! value ||
+				( value.kind !== 'node' && value.kind !== 'repeat' )
+			) {
 				return state;
 			}
-			let next = value.nodeId ? deleteSubtree( state, value.nodeId ) : state;
+			let next = value.nodeId
+				? deleteSubtree( state, value.nodeId )
+				: state;
 			const nodeId = action.nodeId || makeId( 'n' );
-			next = createNode( next, action.typeName, action.valueId, nodeId, false );
-			return { ...next, values: { ...next.values, [ action.valueId ]: { ...value, nodeId } } };
+			next = createNode(
+				next,
+				action.typeName,
+				action.valueId,
+				nodeId,
+				false
+			);
+			return {
+				...next,
+				values: {
+					...next.values,
+					[ action.valueId ]: { ...value, nodeId },
+				},
+			};
 		}
 
 		case ACTIONS.CLEAR_NODE: {
@@ -275,7 +474,13 @@ export function treeReducer( state = emptyState(), action ) {
 				return state;
 			}
 			const next = deleteSubtree( state, value.nodeId );
-			return { ...next, values: { ...next.values, [ action.valueId ]: { ...value, nodeId: null } } };
+			return {
+				...next,
+				values: {
+					...next.values,
+					[ action.valueId ]: { ...value, nodeId: null },
+				},
+			};
 		}
 
 		default:

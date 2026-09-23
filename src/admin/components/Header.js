@@ -14,16 +14,30 @@ export default function Header( { route, navigate, children } ) {
 		<header className="schema-forge-header">
 			<Flex justify="space-between" align="center" wrap>
 				<FlexItem>
-					<h1 className="schema-forge-header__title">{ __( 'Schema Forge', 'schema-forge' ) }</h1>
+					<h1 className="schema-forge-header__title">
+						{ __( 'Schema Forge', 'schema-forge' ) }
+					</h1>
 				</FlexItem>
 				<FlexItem>
-					<nav aria-label={ __( 'Schema Forge sections', 'schema-forge' ) } className="schema-forge-nav">
+					<nav
+						aria-label={ __(
+							'Schema Forge sections',
+							'schema-forge'
+						) }
+						className="schema-forge-nav"
+					>
 						{ NAV.map( ( item ) => (
 							<Button
 								key={ item.view }
 								href={ routeUrl( item.view ) }
-								variant={ active === item.view ? 'primary' : 'tertiary' }
-								aria-current={ active === item.view ? 'page' : undefined }
+								variant={
+									active === item.view
+										? 'primary'
+										: 'tertiary'
+								}
+								aria-current={
+									active === item.view ? 'page' : undefined
+								}
 								onClick={ ( e ) => {
 									e.preventDefault();
 									navigate( item.view );

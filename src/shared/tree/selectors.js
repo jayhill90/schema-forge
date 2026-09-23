@@ -1,5 +1,9 @@
 /**
  * Depth of a node (root = 0).
+ *
+ * @param {Object} state  Normalized tables.
+ * @param {string} nodeId Node to measure.
+ * @return {number} Nesting depth.
  */
 export function nodeDepth( state, nodeId ) {
 	let depth = 0;
@@ -15,13 +19,23 @@ export function nodeDepth( state, nodeId ) {
 
 /**
  * All nodes that are placed in the graph (root + placement === 'graph'), for node: references.
+ *
+ * @param {Object} state Normalized tables.
+ * @return {Object[]} Graph-placed nodes.
  */
 export function graphNodes( state ) {
-	return Object.values( state.nodes ).filter( ( node ) => node.id === state.rootId || node.options.placement === 'graph' );
+	return Object.values( state.nodes ).filter(
+		( node ) =>
+			node.id === state.rootId || node.options.placement === 'graph'
+	);
 }
 
 /**
  * Path of human-readable labels from root to the node.
+ *
+ * @param {Object} state  Normalized tables.
+ * @param {string} nodeId Node to describe.
+ * @return {string[]} Alternating type and property names, e.g. `[ 'Product', 'offers', 'Offer' ]`.
  */
 export function nodePath( state, nodeId ) {
 	const path = [];
@@ -49,11 +63,19 @@ export function countNodes( state ) {
 
 /**
  * Names already used on a node (to avoid duplicates in the picker).
+ *
+ * @param {Object} state  Normalized tables.
+ * @param {string} nodeId Node to inspect.
+ * @return {string[]} Property names in display order.
  */
 export function usedPropertyNames( state, nodeId ) {
 	const node = state.nodes[ nodeId ];
 	if ( ! node ) {
 		return [];
 	}
-	return node.propertyIds.map( ( pid ) => state.properties[ pid ] && state.properties[ pid ].name ).filter( Boolean );
+	return node.propertyIds
+		.map(
+			( pid ) => state.properties[ pid ] && state.properties[ pid ].name
+		)
+		.filter( Boolean );
 }

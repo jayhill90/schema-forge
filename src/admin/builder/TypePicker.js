@@ -6,8 +6,24 @@ import { searchTypes, hasType } from '../../shared/vocab';
 
 /**
  * Searchable schema.org type picker. Accepts custom (unknown) type names too.
+ *
+ * @param {Object}                props
+ * @param {string}                props.value        Selected type name.
+ * @param {function(string):void} props.onChange     Called with the chosen type name.
+ * @param {string}                [props.label]      Field label; defaults to "Type".
+ * @param {string}                [props.help]       Help text; defaults to the type's description.
+ * @param {string[]}              [props.suggested]  Types to list first when the search is empty.
+ * @param {boolean}               [props.allowEmpty] Allow clearing the selection.
+ * @return {Element} The combobox.
  */
-export default function TypePicker( { value, onChange, label, help, suggested = [], allowEmpty = false } ) {
+export default function TypePicker( {
+	value,
+	onChange,
+	label,
+	help,
+	suggested = [],
+	allowEmpty = false,
+} ) {
 	const { core, descriptions } = useVocab();
 	const [ query, setQuery ] = useState( '' );
 
@@ -27,15 +43,34 @@ export default function TypePicker( { value, onChange, label, help, suggested = 
 			if ( ! seen.has( n ) ) {
 				seen.add( n );
 				const t = core.types[ n ];
-				list.push( { value: n, label: t && t.x ? `${ n } — ${ __( 'deprecated', 'schema-forge' ) }${ t.sb && t.sb.length ? ` → ${ t.sb.join( ', ' ) }` : '' }` : n } );
+				list.push( {
+					value: n,
+					label:
+						t && t.x
+							? `${ n } — ${ __( 'deprecated', 'schema-forge' ) }${ t.sb && t.sb.length ? ` → ${ t.sb.join( ', ' ) }` : '' }`
+							: n,
+				} );
 			}
 		}
 		if ( value && ! seen.has( value ) ) {
 			list.unshift( { value, label: value } );
 		}
 		const custom = query.trim();
-		if ( custom && /^[A-Za-z0-9][A-Za-z0-9_]*$/.test( custom ) && ! seen.has( custom ) ) {
-			list.push( { value: custom, label: sprintf( /* translators: %s type name */ __( 'Use custom type “%s”', 'schema-forge' ), custom ) } );
+		if (
+			custom &&
+			/^[A-Za-z0-9][A-Za-z0-9_]*$/.test( custom ) &&
+			! seen.has( custom )
+		) {
+			list.push( {
+				value: custom,
+				label: sprintf(
+					/* translators: %s type name */ __(
+						'Use custom type “%s”',
+						'schema-forge'
+					),
+					custom
+				),
+			} );
 		}
 		return list;
 	}, [ core, query, suggested, value ] );

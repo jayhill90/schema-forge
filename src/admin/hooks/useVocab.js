@@ -1,36 +1,58 @@
-import { createContext, useContext, useEffect, useMemo, useState } from '@wordpress/element';
+import {
+	createContext,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from '@wordpress/element';
 import { config } from '../config';
 
-const VocabContext = createContext( { core: null, descriptions: null, loading: true, error: null } );
+const VocabContext = createContext( {
+	core: null,
+	descriptions: null,
+	loading: true,
+	error: null,
+} );
 
 let corePromise = null;
 let descPromise = null;
 
 function loadJson( url ) {
-	return window.fetch( url, { credentials: 'same-origin' } ).then( ( res ) => {
-		if ( ! res.ok ) {
-			throw new Error( `${ res.status } ${ res.statusText }` );
-		}
-		return res.json();
-	} );
+	return window
+		.fetch( url, { credentials: 'same-origin' } )
+		.then( ( res ) => {
+			if ( ! res.ok ) {
+				throw new Error( `${ res.status } ${ res.statusText }` );
+			}
+			return res.json();
+		} );
 }
 
 export function loadCore() {
 	if ( ! corePromise ) {
-		corePromise = loadJson( `${ config.vocabUrl }?v=${ encodeURIComponent( config.vocabVersion || '1' ) }` );
+		corePromise = loadJson(
+			`${ config.vocabUrl }?v=${ encodeURIComponent( config.vocabVersion || '1' ) }`
+		);
 	}
 	return corePromise;
 }
 
 export function loadDescriptions() {
 	if ( ! descPromise ) {
-		descPromise = loadJson( `${ config.vocabDescUrl }?v=${ encodeURIComponent( config.vocabVersion || '1' ) }` ).catch( () => ( { types: {}, props: {}, enums: {} } ) );
+		descPromise = loadJson(
+			`${ config.vocabDescUrl }?v=${ encodeURIComponent( config.vocabVersion || '1' ) }`
+		).catch( () => ( { types: {}, props: {}, enums: {} } ) );
 	}
 	return descPromise;
 }
 
 export function VocabProvider( { children } ) {
-	const [ state, setState ] = useState( { core: null, descriptions: null, loading: true, error: null } );
+	const [ state, setState ] = useState( {
+		core: null,
+		descriptions: null,
+		loading: true,
+		error: null,
+	} );
 
 	useEffect( () => {
 		let cancelled = false;
@@ -57,7 +79,11 @@ export function VocabProvider( { children } ) {
 	}, [] );
 
 	const value = useMemo( () => state, [ state ] );
-	return <VocabContext.Provider value={ value }>{ children }</VocabContext.Provider>;
+	return (
+		<VocabContext.Provider value={ value }>
+			{ children }
+		</VocabContext.Provider>
+	);
 }
 
 export function useVocab() {
@@ -65,9 +91,15 @@ export function useVocab() {
 }
 
 export function describeType( descriptions, name ) {
-	return ( descriptions && descriptions.types && descriptions.types[ name ] ) || '';
+	return (
+		( descriptions && descriptions.types && descriptions.types[ name ] ) ||
+		''
+	);
 }
 
 export function describeProperty( descriptions, name ) {
-	return ( descriptions && descriptions.props && descriptions.props[ name ] ) || '';
+	return (
+		( descriptions && descriptions.props && descriptions.props[ name ] ) ||
+		''
+	);
 }

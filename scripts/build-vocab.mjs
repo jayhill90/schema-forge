@@ -10,7 +10,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { compileVocab } from './lib/compile-vocab.mjs';
 
-const SOURCE = 'https://schema.org/version/latest/schemaorg-current-https.jsonld';
+const SOURCE =
+	'https://schema.org/version/latest/schemaorg-current-https.jsonld';
 const __dirname = path.dirname( fileURLToPath( import.meta.url ) );
 
 function arg( name, fallback ) {
@@ -25,7 +26,10 @@ function arg( name, fallback ) {
 async function load() {
 	const input = arg( 'input', null );
 	if ( input ) {
-		return { json: JSON.parse( await readFile( input, 'utf8' ) ), version: arg( 'version', 'local' ) };
+		return {
+			json: JSON.parse( await readFile( input, 'utf8' ) ),
+			version: arg( 'version', 'local' ),
+		};
 	}
 	const res = await fetch( SOURCE );
 	if ( ! res.ok ) {
@@ -33,7 +37,12 @@ async function load() {
 	}
 	const json = await res.json();
 	const lastModified = res.headers.get( 'last-modified' );
-	const version = arg( 'version', lastModified ? new Date( lastModified ).toISOString().slice( 0, 10 ) : 'latest' );
+	const version = arg(
+		'version',
+		lastModified
+			? new Date( lastModified ).toISOString().slice( 0, 10 )
+			: 'latest'
+	);
 	return { json, version };
 }
 
@@ -54,8 +63,10 @@ const files = {
 };
 for ( const [ name, content ] of Object.entries( files ) ) {
 	await writeFile( path.join( outDir, name ), content );
-	// eslint-disable-next-line no-console
-	console.log( `${ name.padEnd( 24 ) } ${ ( Buffer.byteLength( content ) / 1024 ).toFixed( 0 ).padStart( 6 ) } KB` );
+	process.stdout.write(
+		`${ name.padEnd( 24 ) } ${ ( Buffer.byteLength( content ) / 1024 )
+			.toFixed( 0 )
+			.padStart( 6 ) } KB\n`
+	);
 }
-// eslint-disable-next-line no-console
-console.log( JSON.stringify( meta.counts ) );
+process.stdout.write( `${ JSON.stringify( meta.counts ) }\n` );

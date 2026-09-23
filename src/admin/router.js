@@ -20,22 +20,25 @@ export function useRoute() {
 		return () => window.removeEventListener( 'popstate', onPop );
 	}, [] );
 
-	const navigate = useCallback( ( view, id = '', { replace = false } = {} ) => {
-		const params = new URLSearchParams( window.location.search );
-		params.set( 'view', view );
-		if ( id ) {
-			params.set( 'id', String( id ) );
-		} else {
-			params.delete( 'id' );
-		}
-		const url = `${ window.location.pathname }?${ params.toString() }`;
-		if ( replace ) {
-			window.history.replaceState( {}, '', url );
-		} else {
-			window.history.pushState( {}, '', url );
-		}
-		setRoute( read() );
-	}, [] );
+	const navigate = useCallback(
+		( view, id = '', { replace = false } = {} ) => {
+			const params = new URLSearchParams( window.location.search );
+			params.set( 'view', view );
+			if ( id ) {
+				params.set( 'id', String( id ) );
+			} else {
+				params.delete( 'id' );
+			}
+			const url = `${ window.location.pathname }?${ params.toString() }`;
+			if ( replace ) {
+				window.history.replaceState( {}, '', url );
+			} else {
+				window.history.pushState( {}, '', url );
+			}
+			setRoute( read() );
+		},
+		[]
+	);
 
 	return { route, navigate };
 }

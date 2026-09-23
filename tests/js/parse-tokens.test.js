@@ -1,10 +1,21 @@
 import { describe, expect, test } from 'vitest';
-import { parseTokens, isSingleToken, segmentText, hasTokens } from '../../src/shared/tokens/parse';
+import {
+	parseTokens,
+	isSingleToken,
+	segmentText,
+	hasTokens,
+} from '../../src/shared/tokens/parse';
 
 describe( 'parseTokens', () => {
 	test( 'parses namespace and path', () => {
 		expect( parseTokens( '{{post.title}}' ) ).toEqual( [
-			{ match: '{{post.title}}', namespace: 'post', path: 'title', filters: [], index: 0 },
+			{
+				match: '{{post.title}}',
+				namespace: 'post',
+				path: 'title',
+				filters: [],
+				index: 0,
+			},
 		] );
 	} );
 
@@ -24,11 +35,17 @@ describe( 'parseTokens', () => {
 	} );
 
 	test( 'finds multiple tokens', () => {
-		expect( parseTokens( '{{post.title}} – {{site.name}}' ).map( ( t ) => t.path ) ).toEqual( [ 'title', 'name' ] );
+		expect(
+			parseTokens( '{{post.title}} – {{site.name}}' ).map(
+				( t ) => t.path
+			)
+		).toEqual( [ 'title', 'name' ] );
 	} );
 
 	test( 'ignores malformed tokens', () => {
-		expect( parseTokens( '{{title}} {{post.}} {{1post.title}}' ) ).toEqual( [] );
+		expect( parseTokens( '{{title}} {{post.}} {{1post.title}}' ) ).toEqual(
+			[]
+		);
 		expect( hasTokens( 'plain' ) ).toBe( false );
 	} );
 
@@ -38,7 +55,9 @@ describe( 'parseTokens', () => {
 	} );
 
 	test( 'segments text for highlighting', () => {
-		expect( segmentText( 'A {{post.title}} B' ).map( ( s ) => s.type ) ).toEqual( [ 'text', 'token', 'text' ] );
+		expect(
+			segmentText( 'A {{post.title}} B' ).map( ( s ) => s.type )
+		).toEqual( [ 'text', 'token', 'text' ] );
 		expect( segmentText( '' ) ).toEqual( [] );
 	} );
 } );

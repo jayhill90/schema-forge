@@ -22,7 +22,8 @@ export const EXTENSION_PROPERTIES = [
 		name: 'query-input',
 		domains: [ 'SearchAction' ],
 		range: [ 'Text', 'PropertyValueSpecification' ],
-		description: 'Sitelinks search box input specification, e.g. "required name=search_term_string". Used together with target on a SearchAction; not part of the core vocabulary but required by Google.',
+		description:
+			'Sitelinks search box input specification, e.g. "required name=search_term_string". Used together with target on a SearchAction; not part of the core vocabulary but required by Google.',
 	},
 ];
 
@@ -37,7 +38,9 @@ function ids( value ) {
 }
 
 function localName( id ) {
-	return id.startsWith( SCHEMA_PREFIX ) ? id.slice( SCHEMA_PREFIX.length ) : null;
+	return id.startsWith( SCHEMA_PREFIX )
+		? id.slice( SCHEMA_PREFIX.length )
+		: null;
 }
 
 function text( value ) {
@@ -79,15 +82,21 @@ function partOf( entry ) {
 }
 
 /**
- * @param {object} jsonld            Parsed schema.org JSON-LD document.
- * @param {object} [options]
- * @param {string} [options.version] Version label to embed.
+ * @param {Object}  jsonld                      Parsed schema.org JSON-LD document.
+ * @param {Object}  [options]
+ * @param {string}  [options.version]           Version label to embed.
  * @param {boolean} [options.includeSuperseded]
  * @param {boolean} [options.includeAttic]
  */
 export function compileVocab( jsonld, options = {} ) {
-	const { version = 'latest', includeSuperseded = true, includeAttic = false } = options;
-	const graph = Array.isArray( jsonld?.[ '@graph' ] ) ? jsonld[ '@graph' ] : [];
+	const {
+		version = 'latest',
+		includeSuperseded = true,
+		includeAttic = false,
+	} = options;
+	const graph = Array.isArray( jsonld?.[ '@graph' ] )
+		? jsonld[ '@graph' ]
+		: [];
 
 	const types = {};
 	const props = {};
@@ -100,7 +109,10 @@ export function compileVocab( jsonld, options = {} ) {
 			return true;
 		}
 		// Terms that are both superseded and never attached to a live type are still kept; they are flagged below.
-		if ( ! includeAttic && partOf( entry ).some( ( p ) => p.includes( 'attic.schema.org' ) ) ) {
+		if (
+			! includeAttic &&
+			partOf( entry ).some( ( p ) => p.includes( 'attic.schema.org' ) )
+		) {
 			return true;
 		}
 		return false;
@@ -112,13 +124,19 @@ export function compileVocab( jsonld, options = {} ) {
 			continue;
 		}
 		const entryTypes = ids( entry[ '@type' ] );
-		const pending = partOf( entry ).some( ( p ) => p.includes( 'pending.schema.org' ) ) ? 1 : 0;
+		const pending = partOf( entry ).some( ( p ) =>
+			p.includes( 'pending.schema.org' )
+		)
+			? 1
+			: 0;
 
 		if ( entryTypes.includes( 'rdfs:Class' ) ) {
 			if ( isExcluded( entry ) ) {
 				continue;
 			}
-			const supers = ids( entry[ 'rdfs:subClassOf' ] ).map( localName ).filter( Boolean );
+			const supers = ids( entry[ 'rdfs:subClassOf' ] )
+				.map( localName )
+				.filter( Boolean );
 			types[ name ] = {
 				s: supers,
 				p: [],
@@ -126,7 +144,9 @@ export function compileVocab( jsonld, options = {} ) {
 				pd: pending,
 				dt: entryTypes.includes( 'schema:DataType' ) ? 1 : 0,
 			};
-			const replacedBy = ids( entry[ 'schema:supersededBy' ] ).map( localName ).filter( Boolean );
+			const replacedBy = ids( entry[ 'schema:supersededBy' ] )
+				.map( localName )
+				.filter( Boolean );
 			if ( entry[ 'schema:supersededBy' ] ) {
 				types[ name ].x = 1;
 				types[ name ].sb = replacedBy;
@@ -142,16 +162,24 @@ export function compileVocab( jsonld, options = {} ) {
 			if ( isExcluded( entry ) ) {
 				continue;
 			}
-			const domains = ids( entry[ 'schema:domainIncludes' ] ).map( localName ).filter( Boolean );
-			const ranges = ids( entry[ 'schema:rangeIncludes' ] ).map( localName ).filter( Boolean );
-			const sub = ids( entry[ 'rdfs:subPropertyOf' ] ).map( localName ).filter( Boolean );
+			const domains = ids( entry[ 'schema:domainIncludes' ] )
+				.map( localName )
+				.filter( Boolean );
+			const ranges = ids( entry[ 'schema:rangeIncludes' ] )
+				.map( localName )
+				.filter( Boolean );
+			const sub = ids( entry[ 'rdfs:subPropertyOf' ] )
+				.map( localName )
+				.filter( Boolean );
 			props[ name ] = { r: ranges, pd: pending };
 			if ( sub.length ) {
 				props[ name ].sub = sub;
 			}
 			if ( entry[ 'schema:supersededBy' ] ) {
 				props[ name ].x = 1;
-				props[ name ].sb = ids( entry[ 'schema:supersededBy' ] ).map( localName ).filter( Boolean );
+				props[ name ].sb = ids( entry[ 'schema:supersededBy' ] )
+					.map( localName )
+					.filter( Boolean );
 			}
 			props[ name ].__domains = domains;
 			const c = cleanComment( entry[ 'rdfs:comment' ] );
@@ -174,7 +202,12 @@ export function compileVocab( jsonld, options = {} ) {
 	// Widely used properties that are not part of the vocabulary but that search engines expect.
 	for ( const ext of EXTENSION_PROPERTIES ) {
 		if ( ! props[ ext.name ] && ext.domains.some( ( d ) => types[ d ] ) ) {
-			props[ ext.name ] = { r: ext.range, pd: 0, ext: 1, __domains: ext.domains };
+			props[ ext.name ] = {
+				r: ext.range,
+				pd: 0,
+				ext: 1,
+				__domains: ext.domains,
+			};
 			descriptions.props[ ext.name ] = ext.description;
 		}
 	}
@@ -205,7 +238,9 @@ export function compileVocab( jsonld, options = {} ) {
 	};
 
 	const explicitDataTypes = new Set(
-		Object.entries( types ).filter( ( [ , t ] ) => t.dt ).map( ( [ name ] ) => name )
+		Object.entries( types )
+			.filter( ( [ , t ] ) => t.dt )
+			.map( ( [ name ] ) => name )
 	);
 	const datatypes = [];
 	for ( const [ name, t ] of Object.entries( types ) ) {
@@ -213,7 +248,10 @@ export function compileVocab( jsonld, options = {} ) {
 		if ( name === 'Enumeration' || anc.has( 'Enumeration' ) ) {
 			t.e = 1;
 		}
-		if ( explicitDataTypes.has( name ) || [ ...anc ].some( ( a ) => explicitDataTypes.has( a ) ) ) {
+		if (
+			explicitDataTypes.has( name ) ||
+			[ ...anc ].some( ( a ) => explicitDataTypes.has( a ) )
+		) {
 			datatypes.push( name );
 		}
 	}
@@ -247,7 +285,11 @@ export function compileVocab( jsonld, options = {} ) {
 	}
 
 	const sortObject = ( obj ) =>
-		Object.fromEntries( Object.keys( obj ).sort().map( ( k ) => [ k, obj[ k ] ] ) );
+		Object.fromEntries(
+			Object.keys( obj )
+				.sort()
+				.map( ( k ) => [ k, obj[ k ] ] )
+		);
 
 	const core = {
 		v: version,
@@ -266,7 +308,9 @@ export function compileVocab( jsonld, options = {} ) {
 			enums: Object.keys( enumMembers ).length,
 			enumMembers: memberEntries.length,
 			datatypes: dtSet.size,
-			superseded: Object.values( types ).filter( ( t ) => t.x ).length + Object.values( props ).filter( ( p ) => p.x ).length,
+			superseded:
+				Object.values( types ).filter( ( t ) => t.x ).length +
+				Object.values( props ).filter( ( p ) => p.x ).length,
 		},
 	};
 
@@ -274,7 +318,11 @@ export function compileVocab( jsonld, options = {} ) {
 }
 
 /**
- * Convenience helpers mirrored on the client (src/shared/vocab).
+ * Direct plus inherited properties of a type (mirrored on the client in src/shared/vocab).
+ *
+ * @param {Object} core     Compiled vocabulary (`schemaorg.core.json` shape).
+ * @param {string} typeName schema.org type name.
+ * @return {string[]} Property names, sorted.
  */
 export function allProperties( core, typeName ) {
 	const seen = new Set();

@@ -28,7 +28,11 @@ export function getProperty( core, name ) {
 }
 
 /**
- * @return {string[]} ancestors, nearest first.
+ * Ancestors of a type, breadth first.
+ *
+ * @param {Object} core Compiled vocabulary.
+ * @param {string} name Type name.
+ * @return {string[]} Ancestors, nearest first.
  */
 export function getAncestors( core, name ) {
 	if ( ! core ) {
@@ -67,9 +71,11 @@ export function isSubtypeOf( core, child, parent ) {
 }
 
 /**
- * Direct + inherited properties, sorted; direct ones flagged.
+ * Direct + inherited properties, sorted; deprecated ones last.
  *
- * @return {Array<{name:string, own:boolean, from:string}>}
+ * @param {Object} core     Compiled vocabulary.
+ * @param {string} typeName Type name.
+ * @return {Array<{name:string, own:boolean, from:string, deprecated:boolean, replacedBy:string[], extension:boolean}>} Properties with their origin.
  */
 export function getAllProperties( core, typeName ) {
 	if ( ! core ) {
@@ -82,11 +88,17 @@ export function getAllProperties( core, typeName ) {
 	const map = new Map();
 	const flags = ( p ) => {
 		const prop = core.props[ p ] || {};
-		return { deprecated: Boolean( prop.x ), replacedBy: prop.sb || [], extension: Boolean( prop.ext ) };
+		return {
+			deprecated: Boolean( prop.x ),
+			replacedBy: prop.sb || [],
+			extension: Boolean( prop.ext ),
+		};
 	};
 	const type = core.types[ typeName ];
 	if ( type ) {
-		type.p.forEach( ( p ) => map.set( p, { name: p, own: true, from: typeName, ...flags( p ) } ) );
+		type.p.forEach( ( p ) =>
+			map.set( p, { name: p, own: true, from: typeName, ...flags( p ) } )
+		);
 	}
 	for ( const ancestor of getAncestors( core, typeName ) ) {
 		const a = core.types[ ancestor ];
@@ -95,12 +107,20 @@ export function getAllProperties( core, typeName ) {
 		}
 		a.p.forEach( ( p ) => {
 			if ( ! map.has( p ) ) {
-				map.set( p, { name: p, own: false, from: ancestor, ...flags( p ) } );
+				map.set( p, {
+					name: p,
+					own: false,
+					from: ancestor,
+					...flags( p ),
+				} );
 			}
 		} );
 	}
 	// Deprecated properties sort last so live ones stay easy to reach.
-	const out = [ ...map.values() ].sort( ( a, b ) => ( a.deprecated - b.deprecated ) || a.name.localeCompare( b.name ) );
+	const out = [ ...map.values() ].sort(
+		( a, b ) =>
+			a.deprecated - b.deprecated || a.name.localeCompare( b.name )
+	);
 	cache.set( typeName, out );
 	return out;
 }
@@ -143,14 +163,25 @@ export function getEnumMembers( core, name ) {
 }
 
 /**
- * Non-datatype, non-enumeration range types a nested node may use for a property.
+ * Non-datatype range types a nested node may use for a property.
+ *
+ * @param {Object} core         Compiled vocabulary.
+ * @param {string} propertyName Property name.
+ * @return {string[]} Expected node types.
  */
 export function getNodeRange( core, propertyName ) {
-	return getRange( core, propertyName ).filter( ( r ) => ! isDataType( core, r ) );
+	return getRange( core, propertyName ).filter(
+		( r ) => ! isDataType( core, r )
+	);
 }
 
 /**
  * Does `typeName` satisfy the property's expected range? Empty/Thing ranges accept anything.
+ *
+ * @param {Object} core         Compiled vocabulary.
+ * @param {string} propertyName Property name.
+ * @param {string} typeName     Candidate nested type.
+ * @return {boolean} True when the type fits.
  */
 export function typeFitsProperty( core, propertyName, typeName ) {
 	const range = getNodeRange( core, propertyName );
@@ -162,6 +193,10 @@ export function typeFitsProperty( core, propertyName, typeName ) {
 
 /**
  * Suggested dataType for the property editor from its range.
+ *
+ * @param {Object} core         Compiled vocabulary.
+ * @param {string} propertyName Property name.
+ * @return {string} One of the ValueCoercer data types (`auto`, `url`, `number`…).
  */
 export function suggestDataType( core, propertyName ) {
 	const range = getRange( core, propertyName );
@@ -195,6 +230,10 @@ export function suggestDataType( core, propertyName ) {
 
 /**
  * Top-level ancestor used to group the palette (Thing's direct children).
+ *
+ * @param {Object} core     Compiled vocabulary.
+ * @param {string} typeName Type name.
+ * @return {string} Group label.
  */
 export function getGroup( core, typeName ) {
 	const ancestors = getAncestors( core, typeName );
@@ -211,9 +250,25 @@ export function getGroup( core, typeName ) {
 /**
  * Rank types for the palette search. Prefix > word start > substring > ancestor match.
  *
- * @return {string[]}
+ * @param {Object}  core                        Compiled vocabulary.
+ * @param {string}  query                       Search text.
+ * @param {Object}  [options]
+ * @param {number}  [options.limit]             Maximum results (default 50).
+ * @param {boolean} [options.includePending]    Include pending schema.org terms (default true).
+ * @param {boolean} [options.excludeDataTypes]  Hide Text, URL, Number… (default true).
+ * @param {boolean} [options.includeSuperseded] Include deprecated types, ranked last (default true).
+ * @return {string[]} Matching type names, best first.
  */
-export function searchTypes( core, query, { limit = 50, includePending = true, excludeDataTypes = true, includeSuperseded = true } = {} ) {
+export function searchTypes(
+	core,
+	query,
+	{
+		limit = 50,
+		includePending = true,
+		excludeDataTypes = true,
+		includeSuperseded = true,
+	} = {}
+) {
 	if ( ! core ) {
 		return [];
 	}
@@ -222,7 +277,10 @@ export function searchTypes( core, query, { limit = 50, includePending = true, e
 	const scored = [];
 	for ( const name of names ) {
 		const t = core.types[ name ];
-		if ( excludeDataTypes && ( isDataType( core, name ) || name === 'DataType' ) ) {
+		if (
+			excludeDataTypes &&
+			( isDataType( core, name ) || name === 'DataType' )
+		) {
 			continue;
 		}
 		if ( ! includePending && t.pd ) {
@@ -242,23 +300,38 @@ export function searchTypes( core, query, { limit = 50, includePending = true, e
 			score = 100;
 		} else if ( lower.startsWith( q ) ) {
 			score = 80;
-		} else if ( /[A-Z]/.test( name.slice( 1 ) ) && name.split( /(?=[A-Z])/ ).some( ( w ) => w.toLowerCase().startsWith( q ) ) ) {
+		} else if (
+			/[A-Z]/.test( name.slice( 1 ) ) &&
+			name
+				.split( /(?=[A-Z])/ )
+				.some( ( w ) => w.toLowerCase().startsWith( q ) )
+		) {
 			score = 60;
 		} else if ( lower.includes( q ) ) {
 			score = 40;
-		} else if ( getAncestors( core, name ).some( ( a ) => a.toLowerCase() === q ) ) {
+		} else if (
+			getAncestors( core, name ).some( ( a ) => a.toLowerCase() === q )
+		) {
 			score = 20;
 		}
 		if ( score >= 0 ) {
 			scored.push( [ name, score - penalty - name.length / 100 ] );
 		}
 	}
-	scored.sort( ( a, b ) => b[ 1 ] - a[ 1 ] || a[ 0 ].localeCompare( b[ 0 ] ) );
+	scored.sort(
+		( a, b ) => b[ 1 ] - a[ 1 ] || a[ 0 ].localeCompare( b[ 0 ] )
+	);
 	return scored.slice( 0, limit ).map( ( [ name ] ) => name );
 }
 
 /**
  * Rank properties of a type for the property combobox.
+ *
+ * @param {Object} core     Compiled vocabulary.
+ * @param {string} typeName Type whose properties are searched.
+ * @param {string} query    Search text.
+ * @param {number} [limit]  Maximum results (default 40).
+ * @return {Array<{name:string, own:boolean, from:string}>} Matching properties, best first.
  */
 export function searchProperties( core, typeName, query, limit = 40 ) {
 	const all = getAllProperties( core, typeName );
@@ -280,7 +353,10 @@ export function searchProperties( core, typeName, query, limit = 40 ) {
 			return [ p, score ];
 		} )
 		.filter( ( [ , s ] ) => s >= 0 )
-		.sort( ( a, b ) => b[ 1 ] - a[ 1 ] || a[ 0 ].name.localeCompare( b[ 0 ].name ) )
+		.sort(
+			( a, b ) =>
+				b[ 1 ] - a[ 1 ] || a[ 0 ].name.localeCompare( b[ 0 ].name )
+		)
 		.slice( 0, limit )
 		.map( ( [ p ] ) => p );
 }

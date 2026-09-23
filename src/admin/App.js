@@ -29,7 +29,10 @@ function VocabGate( { children } ) {
 	if ( error ) {
 		return (
 			<Notice status="error" isDismissible={ false }>
-				{ __( 'The schema.org vocabulary could not be loaded. Run `npm run vocab` in the plugin directory and reload.', 'schema-forge' ) }
+				{ __(
+					'The schema.org vocabulary could not be loaded. Run `npm run vocab` in the plugin directory and reload.',
+					'schema-forge'
+				) }
 			</Notice>
 		);
 	}
@@ -47,14 +50,25 @@ export default function App() {
 	const { route, navigate } = useRoute();
 
 	if ( ! config.canManage ) {
-		return <Notice status="error" isDismissible={ false }>{ __( 'You do not have permission to manage schema templates.', 'schema-forge' ) }</Notice>;
+		return (
+			<Notice status="error" isDismissible={ false }>
+				{ __(
+					'You do not have permission to manage schema templates.',
+					'schema-forge'
+				) }
+			</Notice>
+		);
 	}
 
 	return (
 		<NoticesProvider>
 			<VocabProvider>
-				<div className={ `schema-forge-app schema-forge-view-${ route.view }` }>
-					{ route.view !== 'builder' && <Header route={ route } navigate={ navigate } /> }
+				<div
+					className={ `schema-forge-app schema-forge-view-${ route.view }` }
+				>
+					{ route.view !== 'builder' && (
+						<Header route={ route } navigate={ navigate } />
+					) }
 					<VocabGate>
 						<Screen route={ route } navigate={ navigate } />
 					</VocabGate>

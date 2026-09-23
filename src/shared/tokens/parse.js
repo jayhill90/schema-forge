@@ -3,7 +3,8 @@
  *
  *   {{namespace.path|filter:arg|filter2}}
  */
-export const TOKEN_PATTERN = /\{\{\s*([a-z][a-z0-9_]*)\.([^\s|}]+)\s*(?:\|\s*([^}]*?))?\s*\}\}/gi;
+export const TOKEN_PATTERN =
+	/\{\{\s*([a-z][a-z0-9_]*)\.([^\s|}]+)\s*(?:\|\s*([^}]*?))?\s*\}\}/gi;
 
 const SINGLE = new RegExp( '^\\s*' + TOKEN_PATTERN.source + '\\s*$', 'i' );
 
@@ -22,7 +23,11 @@ function parseFilters( raw ) {
 				return { name: piece.toLowerCase(), arg: null };
 			}
 			let arg = piece.slice( idx + 1 ).trim();
-			if ( arg.length >= 2 && arg.startsWith( '"' ) && arg.endsWith( '"' ) ) {
+			if (
+				arg.length >= 2 &&
+				arg.startsWith( '"' ) &&
+				arg.endsWith( '"' )
+			) {
 				arg = arg.slice( 1, -1 );
 			}
 			return { name: piece.slice( 0, idx ).trim().toLowerCase(), arg };
@@ -30,8 +35,10 @@ function parseFilters( raw ) {
 }
 
 /**
- * @param {string} text
- * @return {Array<{match:string,namespace:string,path:string,filters:Array<{name:string,arg:string|null}>,index:number}>}
+ * Find every `{{namespace.path|filter}}` token in a string.
+ *
+ * @param {string} text Text that may contain tokens.
+ * @return {Array<{match:string,namespace:string,path:string,filters:Array<{name:string,arg:string|null}>,index:number}>} Tokens in order of appearance.
  */
 export function parseTokens( text ) {
 	if ( typeof text !== 'string' || ! text.includes( '{{' ) ) {
@@ -63,8 +70,8 @@ export function isSingleToken( text ) {
 /**
  * Split text into literal and token segments for highlighting.
  *
- * @param {string} text
- * @return {Array<{type:'text'|'token', value:string, token?:object}>}
+ * @param {string} text Text that may contain tokens.
+ * @return {Array<{type:'text'|'token', value:string, token?:Object}>} Segments covering the whole string.
  */
 export function segmentText( text ) {
 	const tokens = parseTokens( text );
@@ -75,7 +82,10 @@ export function segmentText( text ) {
 	let cursor = 0;
 	for ( const token of tokens ) {
 		if ( token.index > cursor ) {
-			segments.push( { type: 'text', value: text.slice( cursor, token.index ) } );
+			segments.push( {
+				type: 'text',
+				value: text.slice( cursor, token.index ),
+			} );
 		}
 		segments.push( { type: 'token', value: token.match, token } );
 		cursor = token.index + token.match.length;

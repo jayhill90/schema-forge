@@ -21,8 +21,8 @@ export function emptyState() {
 /**
  * Convert a stored tree ({ version, root }) into normalized tables.
  *
- * @param {object|null} tree
- * @return {{rootId:string|null,nodes:object,properties:object,values:object}}
+ * @param {Object|null} tree Stored template tree.
+ * @return {{rootId:string|null,nodes:Object,properties:Object,values:Object}} Normalized tables.
  */
 export function normalize( tree ) {
 	const state = emptyState();
@@ -42,14 +42,20 @@ function addNode( state, node, parentValueId, isRoot ) {
 		options: {
 			...DEFAULT_NODE_OPTIONS,
 			...( node.options || {} ),
-			placement: isRoot ? 'graph' : ( node.options && node.options.placement ) || 'inline',
-			extraTypes: [ ...( ( node.options && node.options.extraTypes ) || [] ) ],
+			placement: isRoot
+				? 'graph'
+				: ( node.options && node.options.placement ) || 'inline',
+			extraTypes: [
+				...( ( node.options && node.options.extraTypes ) || [] ),
+			],
 		},
 		propertyIds: [],
 		parentValueId,
 	};
 	for ( const property of node.properties || [] ) {
-		state.nodes[ id ].propertyIds.push( addProperty( state, property, id ) );
+		state.nodes[ id ].propertyIds.push(
+			addProperty( state, property, id )
+		);
 	}
 	return id;
 }
@@ -84,7 +90,10 @@ function addValue( state, value, propertyId ) {
 		if ( kind === 'repeat' ) {
 			entry.source = value.source || '';
 		}
-		entry.nodeId = value.node && value.node.type ? addNode( state, value.node, id, false ) : null;
+		entry.nodeId =
+			value.node && value.node.type
+				? addNode( state, value.node, id, false )
+				: null;
 	}
 	state.values[ id ] = entry;
 	return id;
@@ -92,6 +101,9 @@ function addValue( state, value, propertyId ) {
 
 /**
  * Convert normalized tables back into the stored tree shape.
+ *
+ * @param {Object} state Normalized tables from `normalize()`.
+ * @return {{version:number, root:Object|null}} Stored template tree.
  */
 export function denormalize( state ) {
 	return {
@@ -130,7 +142,9 @@ function propertyToTree( state, propertyId ) {
 		dataType: property.dataType,
 		onEmpty: property.onEmpty,
 		fallback: property.fallback,
-		values: property.valueIds.map( ( vid ) => valueToTree( state, vid ) ).filter( Boolean ),
+		values: property.valueIds
+			.map( ( vid ) => valueToTree( state, vid ) )
+			.filter( Boolean ),
 	};
 }
 
@@ -141,13 +155,31 @@ function valueToTree( state, valueId ) {
 	}
 	switch ( value.kind ) {
 		case 'text':
-			return { id: value.id, kind: 'text', value: value.value, allowPartial: Boolean( value.allowPartial ) };
+			return {
+				id: value.id,
+				kind: 'text',
+				value: value.value,
+				allowPartial: Boolean( value.allowPartial ),
+			};
 		case 'ref':
 			return { id: value.id, kind: 'ref', target: value.target };
 		case 'node':
-			return { id: value.id, kind: 'node', node: value.nodeId ? nodeToTree( state, value.nodeId, false ) : null };
+			return {
+				id: value.id,
+				kind: 'node',
+				node: value.nodeId
+					? nodeToTree( state, value.nodeId, false )
+					: null,
+			};
 		case 'repeat':
-			return { id: value.id, kind: 'repeat', source: value.source, node: value.nodeId ? nodeToTree( state, value.nodeId, false ) : null };
+			return {
+				id: value.id,
+				kind: 'repeat',
+				source: value.source,
+				node: value.nodeId
+					? nodeToTree( state, value.nodeId, false )
+					: null,
+			};
 		default:
 			return null;
 	}
@@ -155,8 +187,17 @@ function valueToTree( state, valueId ) {
 
 /**
  * Ids of every node/property/value inside a subtree (inclusive).
+ *
+ * @param {Object}                                               state  Normalized tables.
+ * @param {string}                                               nodeId Root of the subtree.
+ * @param {{nodes:string[],properties:string[],values:string[]}} [acc]  Accumulator (used for recursion).
+ * @return {{nodes:string[],properties:string[],values:string[]}} Collected ids.
  */
-export function collectSubtree( state, nodeId, acc = { nodes: [], properties: [], values: [] } ) {
+export function collectSubtree(
+	state,
+	nodeId,
+	acc = { nodes: [], properties: [], values: [] }
+) {
 	const node = state.nodes[ nodeId ];
 	if ( ! node ) {
 		return acc;

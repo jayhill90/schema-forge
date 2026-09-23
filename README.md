@@ -35,6 +35,7 @@ Tests (no local PHP needed — everything runs inside Playground):
 
 ```bash
 npm run test:unit                 # Vitest: vocab compiler, token parser, tree reducer, vocab helpers
+npm run lint:js                   # ESLint (WordPress rules) on all JS, including the Claude skill scripts
 npm run lint:php                  # syntax-check every PHP file with Playground's PHP
 npm run playground:test           # Yoast-mode smoke tests (playground/smoke-test.php)
 npm run playground:test:standalone
