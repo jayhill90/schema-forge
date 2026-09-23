@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest';
 import fixture from './fixtures/mini-vocab.json';
 import { compileVocab, allProperties, isSubtypeOf, cleanComment } from '../../scripts/lib/compile-vocab.mjs';
 

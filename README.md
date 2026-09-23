@@ -20,7 +20,7 @@ SEO managers build reusable structured-data templates visually (Product, LocalBu
 
 ## Requirements
 
-PHP 8.1+, WordPress 6.6+. Node 22 for development.
+PHP 8.1+, WordPress 6.6+. Node 24 LTS for development (`nvm use` picks it up from `.nvmrc`; Node 22.22.2+ also works). See [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md) for dependency overrides and install-script approvals.
 
 ## Development
 
@@ -34,7 +34,7 @@ npm run playground       # WordPress Playground with Yoast SEO + SCF + sample co
 Tests (no local PHP needed — everything runs inside Playground):
 
 ```bash
-npm run test:unit                 # Jest: vocab compiler, token parser, tree reducer, vocab helpers
+npm run test:unit                 # Vitest: vocab compiler, token parser, tree reducer, vocab helpers
 npm run lint:php                  # syntax-check every PHP file with Playground's PHP
 npm run playground:test           # Yoast-mode smoke tests (playground/smoke-test.php)
 npm run playground:test:standalone

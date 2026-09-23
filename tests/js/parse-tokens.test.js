@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest';
 import { parseTokens, isSingleToken, segmentText, hasTokens } from '../../src/shared/tokens/parse';
 
 describe( 'parseTokens', () => {

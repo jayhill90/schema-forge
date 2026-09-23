@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest';
 import fixture from './fixtures/mini-vocab.json';
 import { compileVocab } from '../../scripts/lib/compile-vocab.mjs';
 import { getAllProperties, isSubtypeOf, typeFitsProperty, searchTypes, suggestDataType, getGroup, getNodeRange, isPropertySuperseded, supersededBy } from '../../src/shared/vocab';
