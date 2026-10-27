@@ -22,6 +22,24 @@ SEO managers build reusable structured-data templates visually (Product, LocalBu
 
 PHP 8.1+, WordPress 6.6+. Node 24 LTS for development (`nvm use` picks it up from `.nvmrc`; Node 22.22.2+ also works). See [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md) for dependency overrides and install-script approvals.
 
+## Installing on a WordPress site
+
+The repository is not installable as-is: the compiled admin app (`build/`) is generated, not committed. Install from a packaged zip instead.
+
+1. Get `schema-forge.zip` from the latest GitHub Release, or build it yourself with `npm ci && npm run build && npm run plugin-zip`.
+2. In WordPress, go to **Plugins → Add New → Upload Plugin**, choose the zip, then **Activate**.
+3. Updating: upload the newer zip the same way; WordPress offers to replace the installed version. Templates and rules are stored in the database and are kept.
+
+The zip contains only runtime files (`schema-forge.php`, `uninstall.php`, `readme.txt`, `includes/`, `build/`, `assets/`, `languages/`), as listed in the `files` field of `package.json`. Keep that list in sync if you add a runtime folder; `assets/` in particular holds the schema.org vocabulary the builder needs.
+
+**Cutting a release:** bump the version in `schema-forge.php` (header and `SCHEMA_FORGE_VERSION`), `readme.txt` (`Stable tag`) and `package.json`, commit, then push a matching tag:
+
+```bash
+git tag v0.2.0 && git push origin v0.2.0
+```
+
+The **Release plugin zip** workflow (`.github/workflows/release.yml`) checks the versions match the tag, builds, lints, runs the unit tests, and publishes a GitHub Release with the zip attached. Run it manually from the Actions tab to get a zip without releasing.
+
 ## Development
 
 ```bash

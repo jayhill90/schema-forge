@@ -3,3 +3,6 @@ build/
 *.log
 .DS_Store
 playground/.cache/
+
+# Built plugin package (npm run plugin-zip)
+/schema-forge.zip

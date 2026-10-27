@@ -1,0 +1,71 @@
+name: Release plugin zip
+
+# Builds an installable schema-forge.zip.
+# - Push a tag like v0.2.0 to publish a GitHub Release with the zip attached.
+#   The tag must match the version in schema-forge.php, readme.txt and package.json.
+# - Or run it from the Actions tab ("Run workflow") to get the zip as a
+#   downloadable artifact without creating a release.
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # create the release on tag pushes
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Check versions match
+        run: |
+          plugin=$(sed -nE 's/^ \* Version: +([^ ]+).*/\1/p' schema-forge.php)
+          constant=$(sed -nE "s/^define\( 'SCHEMA_FORGE_VERSION', '([^']+)'.*/\1/p" schema-forge.php)
+          stable=$(sed -nE 's/^Stable tag: +([^ ]+).*/\1/p' readme.txt)
+          package=$(node -p "require('./package.json').version")
+          echo "plugin header=$plugin constant=$constant readme=$stable package.json=$package"
+          if [ "$plugin" != "$constant" ] || [ "$plugin" != "$stable" ] || [ "$plugin" != "$package" ]; then
+            echo "::error::Version numbers disagree. Update all four to the same version."
+            exit 1
+          fi
+          if [ "${GITHUB_REF_TYPE}" = "tag" ] && [ "${GITHUB_REF_NAME}" != "v$plugin" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match plugin version $plugin (expected v$plugin)."
+            exit 1
+          fi
+
+      - run: npm ci
+      - run: npm run build
+      - run: npm run lint:js
+      - run: npm run test:unit
+      - run: npm run plugin-zip
+
+      - name: Check zip contents
+        run: |
+          unzip -l schema-forge.zip > contents.txt
+          for required in schema-forge/schema-forge.php schema-forge/build/admin.js schema-forge/build/editor.js schema-forge/assets/vocab/schemaorg.core.json schema-forge/includes/Plugin.php; do
+            grep -q " $required\$" contents.txt || { echo "::error::$required missing from the zip"; exit 1; }
+          done
+          tail -1 contents.txt
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: schema-forge-zip
+          path: schema-forge.zip
+          if-no-files-found: error
+
+      - name: Publish GitHub Release
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" schema-forge.zip --title "Schema Forge $GITHUB_REF_NAME" --generate-notes
